@@ -9,7 +9,7 @@ import util as u
 
 parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 parser.add_argument('--manifest', type=str, default='manifest', help='list of files to embed')
-parser.add_argument('--batch-size', type=int, default=16)
+parser.add_argument('--batch-size', type=int, default=64)
 parser.add_argument('--embedding-dim', type=int, default=64, help="image embedding dim")
 parser.add_argument('--model-input', type=str, default='model', help='where to load model from')
 parser.add_argument('--embeddings-output', type=str, default='embeddings.npy',
@@ -24,6 +24,8 @@ embeddings = []
 
 # next batch of images to run through
 img_batch = []
+
+# TODO: do this as a tf.data pipeline for parallelisation
 
 for filename in u.slurp_manifest(opts.manifest):
     # decode image
