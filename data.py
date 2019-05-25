@@ -3,6 +3,8 @@ import triplet_selection
 
 H, W = 240, 320
 
+NUM_PARALLEL_CALLS = 4
+
 def decode(img_name):
   return tf.image.decode_jpeg(tf.read_file(img_name))   # (H, W, 3)   uint8
 
@@ -30,11 +32,12 @@ def a_p_n_iterator(batch_size, img_dir):
                                                          tf.string,   # positive
                                                          tf.string))  # negative
   
-  dataset = dataset.map(decode_triple, num_parallel_calls=4)
-  dataset = dataset.map(add_dummy_label, num_parallel_calls=4)
+  dataset = dataset.map(decode_triple, num_parallel_calls=NUM_PARALLEL_CALLS)
+  dataset = dataset.map(add_dummy_label, num_parallel_calls=NUM_PARALLEL_CALLS)
   
   batched_dataset = dataset.batch(batch_size)
-  batched_dataset = batched_dataset.map(flatten_apn_into_batch, num_parallel_calls=4)
+  batched_dataset = batched_dataset.map(flatten_apn_into_batch,
+                                        num_parallel_calls=NUM_PARALLEL_CALLS)
 
   # recall: keras takes iterator, not .get_next())
   # TODO: contrib deprecated  
