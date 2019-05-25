@@ -14,10 +14,10 @@ def construct_model(embedding_dim):
     inputs = Input(shape=(data.H, data.W, 3), name='inputs')
     
     conv = Conv2D(filters=8, kernel_size=3, strides=2, padding='same', activation='relu')(inputs)
-    conv = Conv2D(filters=8, kernel_size=3, strides=2, padding='same', activation='relu')(conv)
-    conv = Conv2D(filters=8, kernel_size=3, strides=2, padding='same', activation='relu')(conv)
-    conv = Conv2D(filters=8, kernel_size=3, strides=2, padding='same', activation='relu')(conv)
-    conv = Conv2D(filters=8, kernel_size=3, strides=2, padding='same', activation='relu')(conv)
+    conv = Conv2D(filters=16, kernel_size=3, strides=2, padding='same', activation='relu')(conv)
+    conv = Conv2D(filters=32, kernel_size=3, strides=2, padding='same', activation='relu')(conv)
+    conv = Conv2D(filters=32, kernel_size=3, strides=2, padding='same', activation='relu')(conv)
+    conv = Conv2D(filters=32, kernel_size=3, strides=2, padding='same', activation='relu')(conv)
 
     mlp = Flatten()(conv)
     mlp = Dropout(rate=0.5)(mlp)
