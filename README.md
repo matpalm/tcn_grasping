@@ -18,7 +18,7 @@ wait
 ### full 32K set
 
 ```
-time seq 0 19 | parallel './run_random_grasps.py --run {}'
+time seq 0 100 | parallel './run_random_grasps.py --run {} --render-freq 10 --num-grasps 5'
 # imgs_23K
 ```
 
