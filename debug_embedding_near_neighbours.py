@@ -24,7 +24,7 @@ e_a = np.load(opts.embeddings_a)
 assert len(fnames_a) ==  e_a.shape[0]
 
 if opts.manifest_b is None:
-    fnames_b = fname_a
+    fnames_b = fnames_a
     e_b = e_a
 else: 
     fnames_b = u.slurp_manifest_as_idx_to_name_dict(opts.manifest_b)
@@ -36,10 +36,11 @@ random_idxs = np.random.randint(0, e_a.shape[0], size=5)
 
 # calculate sims between these five and all others.
 sims = np.dot(e_a[random_idxs], e_b.T)
+print("sims", sims.shape)
 
 # calc top 5 near neighbours for each of the the 5
 # note: this is reversed, and last (nearest) is itself.
-top_5 = np.argsort(sims.T)[:,-5:]
+top_5 = np.argsort(sims)[:,-5:]
 
 # paste near neighbours into collage
 BW = 5  # border_width
@@ -52,7 +53,7 @@ for row_idx, row_entry in enumerate(random_idxs):
     # paste near neighbours in next 4 columns
     top_4 = reversed(top_5[row_idx][:-1])
     for nn_idx, nn_entry in enumerate(top_4):
-        print("!!", nn_idx, nn_entry, fnames_b[nn_entry], sims[row_idx][nn_idx])
+        print("!!", nn_idx, nn_entry, fnames_b[nn_entry], sims[row_idx][nn_entry])
         img = u.load_image_with_caption(fnames_b[nn_entry])
         collage.paste(img, ((W+BW)*(nn_idx+1), (H+BW)*row_idx))
 collage.show()        
