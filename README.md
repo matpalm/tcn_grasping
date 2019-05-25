@@ -1,4 +1,8 @@
 
+# pybullet grasping with time contrastive network embeddings
+
+see [the blog post](http://matpalm.com/blog/pybullet_tcn_grasping) for more details
+
 ## generate images
 
 ### synthetic r/g/b squares
