@@ -32,9 +32,11 @@ def construct_model(embedding_dim):
 
 def compile(model, embedding_dim, learning_rate, margin):
 
-    # TODO: add margin back
+#    import sys
+    
+    # TODO: add num_non_zero summary for the per_element_hinge_loss value below
+    
     def triplet_loss(_y_true, y_pred):
-        print("y_pred", y_pred)
         # slice out anchor, positive and negative embeddings
         embeddings = tf.reshape(y_pred, (-1, 3, embedding_dim))
         anchor_embeddings = embeddings[:,0]    # (B, E)
@@ -44,8 +46,15 @@ def compile(model, embedding_dim, learning_rate, margin):
         dist_a_p = tf.norm(anchor_embeddings - positive_embeddings, axis=1)  # (B)
         dist_a_n = tf.norm(anchor_embeddings - negative_embeddings, axis=1)  # (B)
         # check margin constraint and average over batch
+#        p_dist_a_p = tf.print("dist_a_p", dist_a_p,
+#                              summarize=-1, output_stream=sys.stderr)
+#        p_dist_a_n = tf.print("dist_a_n", dist_a_n,
+#                              summarize=-1, output_stream=sys.stderr)
         constraint = dist_a_p - dist_a_n + margin                            # (B)
         per_element_hinge_loss = tf.maximum(0.0, constraint)                 # (B)
+#        p_pehl = tf.print("pehl", per_element_hinge_loss,
+#                          summarize=-1, output_stream=sys.stderr)        
+#        with tf.control_dependencies([p_dist_a_p, p_dist_a_n, p_pehl]):
         batch_hinge_loss = tf.reduce_mean(per_element_hinge_loss)            # (1)
         return batch_hinge_loss
 
