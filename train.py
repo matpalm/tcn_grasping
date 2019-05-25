@@ -3,6 +3,7 @@
 import argparse
 import data
 import model as m
+from tensorflow.keras.callbacks import ModelCheckpoint
 
 parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 parser.add_argument('--img-dir', type=str, default='imgs')
@@ -28,9 +29,8 @@ m.compile(model,
 model.fit(examples,
           epochs=opts.epochs,
           verbose=1,
-          steps_per_epoch=opts.steps_per_epoch)
-
-model.save(opts.model_output)
+          steps_per_epoch=opts.steps_per_epoch,
+          callbacks=[ModelCheckpoint(filepath=opts.model_output)])
 
 
 

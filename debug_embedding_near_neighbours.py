@@ -1,14 +1,22 @@
 #!/usr/bin/env python3
 
+import argparse
 import numpy as np
 import json
 from data import H, W
 from PIL import Image, ImageDraw
 import util as u
 
-fnames = json.loads(open("filenames.json").read())
+parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+parser.add_argument('--filenames-input', type=str, default='filenames.json', 
+                    help='where to read filenames json')
+parser.add_argument('--embeddings-input', type=str, default='embeddings.npy',
+                    help='where to read embedding npy')
+opts = parser.parse_args()
+
+fnames = json.loads(open(opts.filenames_input).read())
 fnames = {int(k): v for k, v in fnames.items()}
-e = np.load('embeddings.npy')
+e = np.load(opts.embeddings_input)
 assert len(fnames) ==  e.shape[0]
 
 # pick five random idxs for src images

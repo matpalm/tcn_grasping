@@ -22,6 +22,7 @@ parser.add_argument('--num-grasps', type=int, default=10, help='number of random
 parser.add_argument('--render-freq', type=int, default=50, help='how often (sim steps) to render a frame')
 parser.add_argument('--gui', action='store_true', help='if set, run with bullet explorer gui')
 opts = parser.parse_args()
+print("opts", opts)
 
 # TODO: capture joint positions at render time too (pull in old grasping prj protobuf?)
 
