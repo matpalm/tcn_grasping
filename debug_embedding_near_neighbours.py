@@ -2,20 +2,18 @@
 
 import argparse
 import numpy as np
-import json
 from data import H, W
 from PIL import Image, ImageDraw
 import util as u
 
 parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-parser.add_argument('--filenames-input', type=str, default='filenames.json', 
-                    help='where to read filenames json')
-parser.add_argument('--embeddings-input', type=str, default='embeddings.npy',
+parser.add_argument('--manifest', type=str, default='manifest',
+                    help='filenames corresponding to embeddings')
+arser.add_argument('--embeddings-input', type=str, default='embeddings.npy',
                     help='where to read embedding npy')
 opts = parser.parse_args()
 
-fnames = json.loads(open(opts.filenames_input).read())
-fnames = {int(k): v for k, v in fnames.items()}
+fnames = u.slurp_manifest_as_idx_to_name_dict(opts.manifest)
 e = np.load(opts.embeddings_input)
 assert len(fnames) ==  e.shape[0]
 

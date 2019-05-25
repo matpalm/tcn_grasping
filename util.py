@@ -14,4 +14,10 @@ def load_image_with_caption(fname):
     canvas.rectangle((0,0,160,10), fill='black')
     canvas.text((0,0), fname)
     return img
-    
+
+def slurp_manifest(manifest):
+    return map(str.strip, open(manifest, "r").readlines())
+
+def slurp_manifest_as_idx_to_name_dict(manifest):
+    return {i: f for i, f in enumerate(slurp_manifest(manifest))}
+
