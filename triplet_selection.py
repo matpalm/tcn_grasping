@@ -20,6 +20,9 @@ class TripletSelection(object):
             for frame in os.listdir("%s/c00/%s" % (img_dir, run)):
                 self.frames.append("%s/%s" % (run, frame))
 
+        print("TripletSelection #cameras=%d #frames=%d" % (self.num_cameras,
+                                                           len(self.frames)))
+
     def random_triple(self):
         # anchor is a random frame from a random camera
         anchor_camera = random.randint(0, self.num_cameras-1)

@@ -1,5 +1,6 @@
 import random
 from PIL import Image, ImageDraw
+import os
 
 # TODO: pull in filename formatting cNN/rNN/RNNN.png util here
 
@@ -21,3 +22,6 @@ def slurp_manifest(manifest):
 def slurp_manifest_as_idx_to_name_dict(manifest):
     return {i: f for i, f in enumerate(slurp_manifest(manifest))}
 
+def ensure_dir_exists(d):
+    if not os.path.exists(d):
+        os.makedirs(d)

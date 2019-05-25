@@ -4,6 +4,7 @@ from PIL import Image, ImageDraw
 import os
 from data import H, W
 import numpy as np
+import util as u
 
 # TODO: add opts
 
@@ -12,9 +13,8 @@ for frame_num, colour in enumerate(['#ff0000', '#ffff00', '#00ff00',
                                     '#00ffff', '#0000ff', '#ff00ff']):    
     for camera_id in range(10):
         output_dir = "imgs/c%02d/r01/" % camera_id
-        if not os.path.exists(output_dir):
-            os.makedirs(output_dir)
-            
+        u.ensure_dir_exists(output_dir)
+
         img = Image.new('RGB', (W, H), (0, 0, 0))
         canvas = ImageDraw.Draw(img)
         

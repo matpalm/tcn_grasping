@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 
+from tensorflow.keras.callbacks import ModelCheckpoint
 import argparse
 import data
 import model as m
-from tensorflow.keras.callbacks import ModelCheckpoint
+import os
+import util as u
 
 parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 parser.add_argument('--img-dir', type=str, default='imgs')
@@ -15,6 +17,7 @@ parser.add_argument('--epochs', type=int, default=20)
 parser.add_argument('--steps-per-epoch', type=int, default=20)
 parser.add_argument('--model-output', type=str, default='model', help='where to save model')
 opts = parser.parse_args()
+print(opts)
 
 examples = data.a_p_n_iterator(batch_size=opts.batch_size,
                                img_dir=opts.img_dir)
@@ -26,11 +29,14 @@ m.compile(model,
           learning_rate=opts.learning_rate,
           margin=opts.margin)
 
+u.ensure_dir_exists(os.path.dirname(opts.model_output))
+save_checkpoint = ModelCheckpoint(filepath=opts.model_output)
+
 model.fit(examples,
           epochs=opts.epochs,
           verbose=1,
           steps_per_epoch=opts.steps_per_epoch,
-          callbacks=[ModelCheckpoint(filepath=opts.model_output)])
+          callbacks=[save_checkpoint])
 
 
 
