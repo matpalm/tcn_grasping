@@ -11,6 +11,8 @@ parser.add_argument('--img-dir', type=str, default='imgs')
 parser.add_argument('--batch-size', type=int, default=16)
 parser.add_argument('--embedding-dim', type=int, default=64, help="image embedding dim")
 parser.add_argument('--model-input', type=str, default='model', help='where to load model from')
+parser.add_argument('--filenames-output', type=str, default='model', help='where to write filenames json')
+parser.add_argument('--embeddings-output', type=str, default='model', help='where to write embedding npy')
 opts = parser.parse_args()
 
 model = m.construct_model(embedding_dim=opts.embedding_dim)
@@ -55,11 +57,11 @@ assert len(embeddings) == len(filenames)
 # flush filenames as json dict
 filename_dict = {i: f for i, f in enumerate(filenames)}
 import json
-with open("filenames.json", "w") as f:
+with open(opts.filenames_output, "w") as f:
     f.write(json.dumps(filename_dict))
 
 # flush embeddings 
 print("embeddings.shape", embeddings.shape)
-np.save("embeddings", embeddings)
+np.save(opts.embeddings_output, embeddings)
 
 
