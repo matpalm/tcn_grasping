@@ -20,35 +20,33 @@ opts = parser.parse_args()
 model = m.construct_model(embedding_dim=opts.embedding_dim)
 model.load_weights(opts.model_input)
 
-# all embeddings
-embeddings = []
-
 # next batch of images to run through
 img_batch = []
 
 # TODO: do this as a tf.data pipeline for parallelisation
-# TODO: prealloc embeddings and copy in (rather than stacking)
 
 filenames = list(u.slurp_manifest(opts.manifest))
+
+# prealloc embeddings and copy them in per batch
+embeddings = np.empty((len(filenames), opts.embedding_dim))
+e_offset = 0
+
 for i, filename in enumerate(filenames):
     # decode image
     pil_img = Image.open(filename)
     img_batch.append(np.array(pil_img))
-        
     # if enoguh images run through batch
     if len(img_batch) == opts.batch_size:
         predictions = model.predict(np.stack(img_batch))
-        embeddings.append(predictions)
+        embeddings[e_offset:e_offset+len(img_batch)] = predictions
+        e_offset += len(img_batch)
         img_batch = []
         sys.stdout.write("%d/%d                 \r" % (i, len(filenames)))
-        
-# stack embeddings into (N, dim) array
-embeddings = np.stack(embeddings).reshape((-1, opts.embedding_dim))
 
 # flush final batch
 if len(img_batch) > 0:
     predictions = model.predict(np.stack(img_batch))
-    embeddings = np.concatenate([embeddings, predictions])
+    embeddings[e_offset:e_offset+len(img_batch)] = predictions
     
 # flush embeddings 
 print("embeddings.shape", embeddings.shape)
