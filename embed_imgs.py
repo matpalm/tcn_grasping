@@ -6,6 +6,7 @@ from PIL import Image
 import numpy as np
 import os
 import util as u
+import sys
 
 parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 parser.add_argument('--manifest', type=str, default='manifest', help='list of files to embed')
@@ -26,8 +27,10 @@ embeddings = []
 img_batch = []
 
 # TODO: do this as a tf.data pipeline for parallelisation
+# TODO: prealloc embeddings and copy in (rather than stacking)
 
-for filename in u.slurp_manifest(opts.manifest):
+filenames = list(u.slurp_manifest(opts.manifest))
+for i, filename in enumerate(filenames):
     # decode image
     pil_img = Image.open(filename)
     img_batch.append(np.array(pil_img))
@@ -37,6 +40,7 @@ for filename in u.slurp_manifest(opts.manifest):
         predictions = model.predict(np.stack(img_batch))
         embeddings.append(predictions)
         img_batch = []
+        sys.stdout.write("%d/%d                 \r" % (i, len(filenames)))
         
 # stack embeddings into (N, dim) array
 embeddings = np.stack(embeddings).reshape((-1, opts.embedding_dim))
