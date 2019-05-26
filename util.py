@@ -12,7 +12,7 @@ def random_in(a, b):
 def load_image_with_caption(fname):
     img = Image.open(fname)
     canvas = ImageDraw.Draw(img)
-    canvas.rectangle((0,0,200,10), fill='black')
+    canvas.rectangle((0,0,300,10), fill='black')
     canvas.text((0,0), fname)
     return img
 
