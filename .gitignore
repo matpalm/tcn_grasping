@@ -1,9 +1,11 @@
+.ipynb_checkpoints/
+objs/ 
+runs
+imgs
 \#*
 \.\#*
 __pycache__/
 *~
-runs/
-imgs/
 embeddings.npy
 filenames.json
 
