@@ -31,7 +31,8 @@ kuka_env = kuka_env.KukaEnv(gui=opts.gui,
                             num_objects=opts.num_objects,
                             obj_urdf_dir=opts.obj_urdf_dir)
 
-kuka_env.cameras = [camera.Camera(camera_id=i, seed=i,
+kuka_env.cameras = [camera.Camera(camera_id=i,
+                                  config=camera.CameraConfig(seed=i),
                                   img_dir=opts.img_dir) for i in range(opts.num_cameras)]
 
 
