@@ -6,6 +6,7 @@ from PIL import Image
 import random
 import os
 import util as u
+from data import H, W
 
 class CameraConfig(object):
 
@@ -13,8 +14,9 @@ class CameraConfig(object):
         random.seed(seed)
         np.random.seed(seed)
 
-        self.width = 320
-        self.height = 240
+        # TODO: push config of these up
+        self.width = W
+        self.height = H
 
         self.fov = u.random_in(50, 70)
 
@@ -68,7 +70,7 @@ class Camera(object):
                                                                upAxisIndex=2)
 
     def render(self, run_id, frame_num):
-        
+
         # call bullet to render
         rendering = p.getCameraImage(width=self.config.width, height=self.config.height,
                                      viewMatrix=self.view_matrix,
@@ -91,7 +93,3 @@ class Camera(object):
         output_fname = "%s/f%03d.png" % (img_output_dir, frame_num)
         print("output_fname", output_fname)
         img.save(output_fname)
-
-
-
-

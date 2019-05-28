@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 
-import argparse
-import os
 from PIL import Image
+from data import H, W
+import argparse
 import math
+import os
 
 # show a collage of a point in time across all cameras
 
@@ -23,11 +24,8 @@ for camera_dir in os.listdir(opts.img_dir):
 num_cols = 4
 num_rows = (len(imgs) // num_cols) +1
 
-collage = Image.new('RGB', (320*num_cols, 240*num_rows), (0,0,0))
+collage = Image.new('RGB', (W*num_cols, H*num_rows), (0,0,0))
 for i, img in enumerate(imgs):
     col, row = i % num_cols, i // num_cols
-    collage.paste(img, (320*col, 240*row))
+    collage.paste(img, (W*col, H*row))
 collage.show()
-
-    
-    

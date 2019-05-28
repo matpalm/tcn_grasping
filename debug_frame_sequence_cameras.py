@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 
+from PIL import Image
+from data import H, W
 import argparse
 import os
-from PIL import Image
 import random
 
 # show a 5x5 collage of random images
@@ -21,16 +22,13 @@ assert len(camera_ids) > 0
 num_cols = opts.num_frames
 num_rows = len(camera_ids)
 
-collage = Image.new('RGB', (320*num_cols, 240*num_rows), (0,0,0))
+collage = Image.new('RGB', (W*num_cols, H*num_rows), (0,0,0))
 
 for frame_offset in range(opts.num_frames):
     for row, camera_id in enumerate(camera_ids):
         fname = "%s/c%02d/r%02d/f%03d.png" % (opts.img_dir, camera_id, opts.run,
                                               opts.initial_frame + frame_offset)
         img = Image.open(fname)
-        collage.paste(img, (320*frame_offset, 240*row))
-        
-collage.show()
+        collage.paste(img, (W*frame_offset, H*row))
 
-    
-    
+collage.show()
