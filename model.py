@@ -28,7 +28,8 @@ def construct_model(embedding_dim):
 
     model = Model(inputs=inputs, outputs=embeddings)
     print(model.summary())
-    return model
+
+    return inputs, model
 
 class TripletLoss(object):
     def __init__(self, embedding_dim, margin):
@@ -46,7 +47,8 @@ class TripletLoss(object):
         dist_a_n = tf.norm(anchor_embeddings - negative_embeddings, axis=1)  # (B)
         # check margin constraint and average over batch
         constraint = dist_a_p - dist_a_n + self.margin                       # (B)
-        return tf.maximum(0.0, constraint)                                   # (B)
+        self.per_element_hinge_loss_op = tf.maximum(0.0, constraint)         # (B)
+        return self.per_element_hinge_loss_op
 
     def triplet_loss(self, _y_true, y_pred):
         return tf.reduce_mean(self.per_element_hinge_loss(y_pred))
@@ -55,4 +57,4 @@ def compile(model, embedding_dim, learning_rate, margin):
     loss_fn = TripletLoss(embedding_dim, margin)
     model.compile(optimizer=optimizers.Adam(lr=learning_rate),
                   loss=loss_fn.triplet_loss)
-    return model, loss_fn
+    return loss_fn

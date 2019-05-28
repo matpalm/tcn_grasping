@@ -1,12 +1,9 @@
 blog_imgs
 .ipynb_checkpoints/
-objs/ 
+objs/
 runs
 imgs
 \#*
 \.\#*
 __pycache__/
 *~
-embeddings.npy
-filenames.json
-

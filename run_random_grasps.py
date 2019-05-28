@@ -31,9 +31,25 @@ kuka_env = kuka_env.KukaEnv(gui=opts.gui,
                             num_objects=opts.num_objects,
                             obj_urdf_dir=opts.obj_urdf_dir)
 
-kuka_env.cameras = [camera.Camera(camera_id=i,
-                                  config=camera.CameraConfig(seed=i),
-                                  img_dir=opts.img_dir) for i in range(opts.num_cameras)]
+
+if False: # PERTURBED_CAMERA_HACKTASTIC_HACK
+    import copy
+    base_camera_config = camera.CameraConfig(seed=0)
+    configs = [base_camera_config]
+    with open("perturbed_cameras.ssv", "w") as f:
+        for i in range(90):
+            extra_camera_config = copy.deepcopy(base_camera_config)
+            camera_target_offset = (np.random.random((3,))*0.4)-0.2
+            print(i+1, " ".join(map(str, list(camera_target_offset))),
+                  np.linalg.norm(camera_target_offset), file=f)
+            extra_camera_config.camera_target += camera_target_offset
+            configs.append(extra_camera_config)
+else:
+    configs = [camera.CameraConfig(seed=i) for i in range(opts.num_cameras)]
+
+kuka_env.cameras = [camera.Camera(camera_id=i, config=c, img_dir=opts.img_dir)
+                    for i, c in enumerate(configs)]
+
 
 
 # do some grasps
