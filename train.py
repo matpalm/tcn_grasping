@@ -45,10 +45,9 @@ class NumZeroLossCB(callbacks.Callback):
         self.loss_histo = tf.summary.histogram("batch_loss_histo", loss_fn.per_element_hinge_loss_op)
 
     def on_epoch_end(self, epoch, logs):
-#        if self.step % self.steps_per_check == 0:
-            # TODO: how do we just use the keras iterator here? don't care
-            # that it's "wastes" examples doing this eval, it's all generator
-            # based anyways...
+        # TODO: how do we just use the keras iterator here? don't care
+        # that it's "wastes" examples doing this eval, it's all generator
+        # based anyways...
         next_egs, _dummy_labels = self.sess.run(self.examples)
         sess = tf.keras.backend.get_session()
         per_elem_loss, loss_histo = sess.run([loss_fn.per_element_hinge_loss_op, self.loss_histo],
