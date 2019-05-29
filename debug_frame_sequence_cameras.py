@@ -5,8 +5,9 @@ from data import H, W
 import argparse
 import os
 import random
+import util as u
 
-# show a 5x5 collage of random images
+# show a collage of random images
 
 parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 parser.add_argument('--img-dir', type=str, default='imgs')
@@ -26,8 +27,9 @@ collage = Image.new('RGB', (W*num_cols, H*num_rows), (0,0,0))
 
 for frame_offset in range(opts.num_frames):
     for row, camera_id in enumerate(camera_ids):
-        fname = "%s/c%02d/r%02d/f%03d.png" % (opts.img_dir, camera_id, opts.run,
-                                              opts.initial_frame + frame_offset)
+        fname = "%s/%s" % (opts.img_dir,
+                           u.camera_img_fname(camera_id, opts.run,
+                                              opts.initial_frame + frame_offset))
         img = Image.open(fname)
         collage.paste(img, (W*frame_offset, H*row))
 
