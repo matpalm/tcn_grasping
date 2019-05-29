@@ -17,12 +17,12 @@ parser.add_argument('--learning-rate', type=float, default=1e-3, help="learning 
 parser.add_argument('--margin', type=float, default=1e-3, help="hinge loss margin")
 parser.add_argument('--epochs', type=int, default=20)
 parser.add_argument('--steps-per-epoch', type=int, default=20)
-parser.add_argument('--output-dir', type=str, default='.',
-                    help='dir to save model.hdf5, tb logs, etc')
+parser.add_argument('--run', type=str, default='.',
+                    help='run name to use as postfix for model saving, tb output')
 opts = parser.parse_args()
 print(opts)
 
-u.ensure_dir_exists(opts.output_dir)
+u.ensure_dir_exists("runs/%s" % opts.run)
 
 examples = data.a_p_n_iterator(batch_size=opts.batch_size,
                                img_dir=opts.img_dir)
@@ -36,37 +36,34 @@ loss_fn = m.compile(model,
 
 class NumZeroLossCB(callbacks.Callback):
 
-    def __init__(self, batch_size=16, steps_per_check=100):
+    def __init__(self, batch_size=16):
         self.batch_size = batch_size
-        self.steps_per_check = steps_per_check
         self.sess = tf.Session()
-        self.step = 0
         self.examples = (data.a_p_n_iterator(batch_size=self.batch_size, img_dir=opts.img_dir).
                          make_one_shot_iterator().get_next())
-        self.summary_writer = tf.summary.FileWriter("%s/logs" % opts.output_dir)
+        self.summary_writer = tf.summary.FileWriter("tb/%s" % opts.run)
         self.loss_histo = tf.summary.histogram("batch_loss_histo", loss_fn.per_element_hinge_loss_op)
 
-    def on_train_batch_end(self, batch, logs):
-        self.step += 1
-        if self.step % self.steps_per_check == 0:
+    def on_epoch_end(self, epoch, logs):
+#        if self.step % self.steps_per_check == 0:
             # TODO: how do we just use the keras iterator here? don't care
             # that it's "wastes" examples doing this eval, it's all generator
             # based anyways...
-            next_egs, _dummy_labels = self.sess.run(self.examples)
-            sess = tf.keras.backend.get_session()
-            per_elem_loss, loss_histo = sess.run([loss_fn.per_element_hinge_loss_op, self.loss_histo],
-                                                 feed_dict={inputs: next_egs})
-            percentage_non_zero = np.count_nonzero(per_elem_loss) / self.batch_size
-            summary_values = [tf.Summary.Value(tag='percentage_batch_non_zero_loss',
-                                               simple_value=percentage_non_zero),
-                              tf.Summary.Value(tag='mean_batch_loss',
-                                               simple_value=np.mean(per_elem_loss))]
-            self.summary_writer.add_summary(tf.Summary(value=summary_values), self.step)
-            self.summary_writer.add_summary(loss_histo)
-            self.summary_writer.flush()
+        next_egs, _dummy_labels = self.sess.run(self.examples)
+        sess = tf.keras.backend.get_session()
+        per_elem_loss, loss_histo = sess.run([loss_fn.per_element_hinge_loss_op, self.loss_histo],
+                                             feed_dict={inputs: next_egs})
+        percentage_non_zero = np.count_nonzero(per_elem_loss) / self.batch_size
+        summary_values = [tf.Summary.Value(tag='percentage_batch_non_zero_loss',
+                                           simple_value=percentage_non_zero),
+                          tf.Summary.Value(tag='mean_batch_loss',
+                                           simple_value=np.mean(per_elem_loss))]
+        self.summary_writer.add_summary(tf.Summary(value=summary_values), epoch)
+        self.summary_writer.add_summary(loss_histo)
+        self.summary_writer.flush()
 
-callbacks = [callbacks.ModelCheckpoint(filepath="%s/model.hdf5" % opts.output_dir),
-             callbacks.TensorBoard(log_dir="%s/logs" % opts.output_dir),
+callbacks = [callbacks.ModelCheckpoint(filepath="runs/%s/model.hdf5" % opts.run),
+             callbacks.TensorBoard(log_dir="tb/%s" % opts.run),
              NumZeroLossCB()]
 model.fit(examples,
           epochs=opts.epochs,

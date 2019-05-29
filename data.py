@@ -1,7 +1,8 @@
 import tensorflow as tf
 import triplet_selection
 
-H, W = 240, 320
+#H, W = 240, 320
+H, W = 120, 160
 
 NUM_PARALLEL_CALLS = 4
 
@@ -23,27 +24,22 @@ def flatten_apn_into_batch(batched_a_p_n, batched_labels):
 
 def a_p_n_iterator(batch_size, img_dir):
   # return batch of examples (batch, 3(apn), h, w, 3(rgb))
-  
+
   triplets = triplet_selection.TripletSelection(img_dir)
-  
+
   # TODO: from_generator triggers py_func => deprecated
   dataset = tf.data.Dataset.from_generator(triplets.random_triples,
                                            output_types=(tf.string,   # anchor
                                                          tf.string,   # positive
                                                          tf.string))  # negative
-  
+
   dataset = dataset.map(decode_triple, num_parallel_calls=NUM_PARALLEL_CALLS)
   dataset = dataset.map(add_dummy_label, num_parallel_calls=NUM_PARALLEL_CALLS)
-  
+
   batched_dataset = dataset.batch(batch_size)
   batched_dataset = batched_dataset.map(flatten_apn_into_batch,
                                         num_parallel_calls=NUM_PARALLEL_CALLS)
 
   # recall: keras takes iterator, not .get_next())
-  # TODO: contrib deprecated  
-  return batched_dataset.prefetch(tf.contrib.data.AUTOTUNE)   
-
-
-  
-
-  
+  # TODO: contrib deprecated
+  return batched_dataset.prefetch(tf.contrib.data.AUTOTUNE)

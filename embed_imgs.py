@@ -17,7 +17,7 @@ parser.add_argument('--embeddings-output', type=str, default='embeddings.npy',
                     help='where to write embedding npy')
 opts = parser.parse_args()
 
-model = m.construct_model(embedding_dim=opts.embedding_dim)
+_, model = m.construct_model(embedding_dim=opts.embedding_dim)
 model.load_weights(opts.model_input)
 
 # next batch of images to run through
@@ -47,9 +47,7 @@ for i, filename in enumerate(filenames):
 if len(img_batch) > 0:
     predictions = model.predict(np.stack(img_batch))
     embeddings[e_offset:e_offset+len(img_batch)] = predictions
-    
-# flush embeddings 
+
+# flush embeddings
 print("embeddings.shape", embeddings.shape)
 np.save(opts.embeddings_output, embeddings)
-
-
