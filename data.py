@@ -12,15 +12,8 @@ def decode(img_name):
 def decode_triple(a, p, n):
   return tf.stack([decode(a), decode(p), decode(n)])  # (3, H, W, 3)
 
-def add_dummy_label(a_p_n):
-  # include a dummy label as part of the iterator since i don't
-  # how to weave in the triplet loss under the compile api (which
-  # requires loss to have a y_true & y_pred
-  return a_p_n, 0
-
-def flatten_apn_into_batch(batched_a_p_n, batched_labels):
-  return (tf.reshape(batched_a_p_n, (-1, H, W, 3)),
-          batched_labels)
+def flatten_apn_into_batch(batched_a_p_n):
+  return tf.reshape(batched_a_p_n, (-1, H, W, 3))
 
 def a_p_n_iterator(batch_size, img_dir, negative_frame_range):
   # return batch of examples (batch, 3(apn), h, w, 3(rgb))
@@ -34,7 +27,6 @@ def a_p_n_iterator(batch_size, img_dir, negative_frame_range):
                                                          tf.string))  # negative
 
   dataset = dataset.map(decode_triple, num_parallel_calls=NUM_PARALLEL_CALLS)
-  dataset = dataset.map(add_dummy_label, num_parallel_calls=NUM_PARALLEL_CALLS)
 
   batched_dataset = dataset.batch(batch_size)
   batched_dataset = batched_dataset.map(flatten_apn_into_batch,

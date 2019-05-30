@@ -30,12 +30,9 @@ examples = data.a_p_n_iterator(batch_size=opts.batch_size,
                                img_dir=opts.img_dir,
                                negative_frame_range=opts.negative_frame_range)
 
-inputs, model = m.construct_model(embedding_dim=opts.embedding_dim)
-
-loss_fn = m.compile(model,
-                    embedding_dim=opts.embedding_dim,
-                    learning_rate=opts.learning_rate,
-                    margin=opts.margin)
+model, inputs, loss_fn = m.construct_model(embedding_dim=opts.embedding_dim,
+                                           learning_rate=opts.learning_rate,
+                                           margin=opts.margin)
 
 class NumZeroLossCB(callbacks.Callback):
 
@@ -50,10 +47,10 @@ class NumZeroLossCB(callbacks.Callback):
         self.loss_histo = tf.summary.histogram("batch_loss_histo", loss_fn.per_element_hinge_loss_op)
 
     def on_epoch_end(self, epoch, logs):
-        # TODO: how do we just use the keras iterator here? don't care
+        # TODO: how do we just use the models iterator here? don't care
         # that it's "wastes" examples doing this eval, it's all generator
         # based anyways...
-        next_egs, _dummy_labels = self.sess.run(self.examples)
+        next_egs = self.sess.run(self.examples)
         sess = tf.keras.backend.get_session()
         per_elem_loss, loss_histo = sess.run([loss_fn.per_element_hinge_loss_op, self.loss_histo],
                                              feed_dict={inputs: next_egs})

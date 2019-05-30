@@ -23,12 +23,12 @@ time ./embed_imgs.py \
 --manifest imgs/02_20c_10o.lores/c18.manifest \
 --model-input /tmp/model.hdf5 \
 --embedding-dim 64 \
---embeddings-output runs/$1/02_20c_10o.lores.c18.embeddings.npy  # ????
+--embeddings-output runs/$1/02_20c_10o.lores.c18.embeddings.npy
 time ./embed_imgs.py \
 --manifest imgs/02_20c_10o.lores/c19.manifest \
 --model-input /tmp/model.hdf5 \
 --embedding-dim 64 \
---embeddings-output runs/$1/02_20c_10o.lores.c19.embeddings.npy  # ????
+--embeddings-output runs/$1/02_20c_10o.lores.c19.embeddings.npy
 
 # do near neighbour calcs between (ref, c18) & (ref, c19)
 ./debug_embedding_near_neighbours.py \
@@ -51,3 +51,5 @@ convert stitch*png runs/$1/near_neighbour_egs.gif
 
 # clean up
 rm stitch*png /tmp/{c18,c19}.nns /tmp/model.hdf5
+
+eog runs/$1/near_neighbour_egs.gif

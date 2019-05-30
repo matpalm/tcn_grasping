@@ -17,7 +17,7 @@ apn = a_p_n_iterator(batch_size=4,
                      img_dir=opts.img_dir,
                      negative_frame_range=opts.negative_frame_range)
 apn = apn.make_one_shot_iterator().get_next()
-examples, _dummy_labels = sess.run(apn)  #
+examples = sess.run(apn)  #
 examples = examples.reshape(4, 3, H, W, 3)  # (batch, APN, H, W, RGB)
 print(examples.shape)
 

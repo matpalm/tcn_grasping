@@ -18,7 +18,7 @@ parser.add_argument('--embeddings-output', type=str, default='embeddings.npy',
                     help='where to write embedding npy')
 opts = parser.parse_args()
 
-_, model = m.construct_model(embedding_dim=opts.embedding_dim)
+model = m.construct_model(embedding_dim=opts.embedding_dim)
 model.load_weights(opts.model_input)
 
 filenames = list(u.slurp_manifest(opts.manifest))
