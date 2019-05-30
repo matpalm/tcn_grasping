@@ -15,6 +15,8 @@ parser.add_argument('--batch-size', type=int, default=16, help="note: effective 
 parser.add_argument('--embedding-dim', type=int, default=64, help="image embedding dim")
 parser.add_argument('--learning-rate', type=float, default=1e-3, help="learning rate for adam")
 parser.add_argument('--margin', type=float, default=1e-3, help="hinge loss margin")
+parser.add_argument('--negative-frame-range', type=int, default=None,
+                    help="select negative +/- this value; if None use entire range")
 parser.add_argument('--epochs', type=int, default=20)
 parser.add_argument('--steps-per-epoch', type=int, default=20)
 parser.add_argument('--run', type=str, default='.',
@@ -25,7 +27,8 @@ print(opts)
 u.ensure_dir_exists("runs/%s" % opts.run)
 
 examples = data.a_p_n_iterator(batch_size=opts.batch_size,
-                               img_dir=opts.img_dir)
+                               img_dir=opts.img_dir,
+                               negative_frame_range=opts.negative_frame_range)
 
 inputs, model = m.construct_model(embedding_dim=opts.embedding_dim)
 
@@ -39,7 +42,9 @@ class NumZeroLossCB(callbacks.Callback):
     def __init__(self, batch_size=16):
         self.batch_size = batch_size
         self.sess = tf.Session()
-        self.examples = (data.a_p_n_iterator(batch_size=self.batch_size, img_dir=opts.img_dir).
+        self.examples = (data.a_p_n_iterator(batch_size=self.batch_size,
+                                             img_dir=opts.img_dir,
+                                             negative_frame_range=opts.negative_frame_range).
                          make_one_shot_iterator().get_next())
         self.summary_writer = tf.summary.FileWriter("tb/%s" % opts.run)
         self.loss_histo = tf.summary.histogram("batch_loss_histo", loss_fn.per_element_hinge_loss_op)

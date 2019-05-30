@@ -22,10 +22,10 @@ def flatten_apn_into_batch(batched_a_p_n, batched_labels):
   return (tf.reshape(batched_a_p_n, (-1, H, W, 3)),
           batched_labels)
 
-def a_p_n_iterator(batch_size, img_dir):
+def a_p_n_iterator(batch_size, img_dir, negative_frame_range):
   # return batch of examples (batch, 3(apn), h, w, 3(rgb))
 
-  triplets = triplet_selection.TripletSelection(img_dir)
+  triplets = triplet_selection.TripletSelection(img_dir, negative_frame_range)
 
   # TODO: from_generator triggers py_func => deprecated
   dataset = tf.data.Dataset.from_generator(triplets.random_triples,

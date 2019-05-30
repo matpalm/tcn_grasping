@@ -8,12 +8,16 @@ import argparse
 
 parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 parser.add_argument('--img-dir', type=str, default='imgs')
+parser.add_argument('--negative-frame-range', type=int, default=None,
+                    help="select negative +/- this value; if None use entire range")
 opts = parser.parse_args()
 
 sess = tf.Session()
-apn = a_p_n_iterator(batch_size=4, img_dir=opts.img_dir)
+apn = a_p_n_iterator(batch_size=4,
+                     img_dir=opts.img_dir,
+                     negative_frame_range=opts.negative_frame_range)
 apn = apn.make_one_shot_iterator().get_next()
-examples, _dummy_labels = sess.run(apn)  # 
+examples, _dummy_labels = sess.run(apn)  #
 examples = examples.reshape(4, 3, H, W, 3)  # (batch, APN, H, W, RGB)
 print(examples.shape)
 
