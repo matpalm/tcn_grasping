@@ -17,9 +17,10 @@ apn = a_p_n_iterator(batch_size=4,
                      img_dir=opts.img_dir,
                      negative_frame_range=opts.negative_frame_range)
 apn = apn.make_one_shot_iterator().get_next()
-examples = sess.run(apn)  #
-examples = examples.reshape(4, 3, H, W, 3)  # (batch, APN, H, W, RGB)
-print(examples.shape)
+examples = sess.run(apn)
+examples = examples.reshape(4, 3, H, W, 3)          # (batch, APN, H, W, RGB) (-1., 1.)
+print("examples min", np.min(examples), "max", np.max(examples), "shape", examples.shape)
+examples = (((examples+1)/2)*255).astype(np.uint8)  # (-1., 1.) => (0., 2.) => (0., 1.) => (0, 255)
 
 BW = 5  # border_width
 collage = Image.new('RGB', (4*(W+BW), 3*(H+BW)), (255,255,255))

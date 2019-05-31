@@ -8,7 +8,10 @@ H, W = 180, 240
 NUM_PARALLEL_CALLS = 4
 
 def decode(img_name):
-  return tf.image.decode_jpeg(tf.read_file(img_name))   # (H, W, 3)   uint8
+  img = tf.image.decode_jpeg(tf.read_file(img_name))   # (H, W, 3)   uint8
+  img = tf.image.convert_image_dtype(img, tf.float32)  # (0.0, 1.0)
+  img = (img * 2 ) - 1                             # (-1.0, 1.0)
+  return img
 
 def decode_triple(a, p, n):
   return tf.stack([decode(a), decode(p), decode(n)])  # (3, H, W, 3)
