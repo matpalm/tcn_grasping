@@ -2,7 +2,8 @@ import tensorflow as tf
 import triplet_selection
 
 #H, W = 240, 320
-H, W = 120, 160
+H, W = 180, 240
+#H, W = 120, 160
 
 NUM_PARALLEL_CALLS = 4
 

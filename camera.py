@@ -46,10 +46,10 @@ class CameraConfig(object):
 
 class Camera(object):
 
-    def __init__(self, camera_id, config, img_dir):
+    def __init__(self, camera_id, config, img_dir, kuka_uid):
         self.id = camera_id
         self.img_dir = img_dir
-
+        self.kuka_uid = kuka_uid
         self.config = config
 
         self.proj_matrix = p.computeProjectionMatrixFOV(fov=config.fov,
@@ -87,9 +87,17 @@ class Camera(object):
         img = Image.fromarray(rgb_array)
 
         # save image
-        img_output_dir = "%s/c%02d/r%02d" % (self.img_dir, self.id, run_id)
-        if not os.path.exists(img_output_dir):
-            os.makedirs(img_output_dir)
-        output_fname = "%s/f%03d.png" % (img_output_dir, frame_num)
-        print("output_fname", output_fname)
-        img.save(output_fname)
+        output_fname = u.camera_img_fname(self.id, run_id, frame_num)
+        full_output_fname = "%s/%s" % (self.img_dir, output_fname)
+        dir_name = os.path.dirname(full_output_fname)
+        if not os.path.exists(dir_name):
+            os.makedirs(dir_name)
+        print("full_output_fname", full_output_fname)
+        img.save(full_output_fname)
+
+        # capture joint states
+        # TODO: write this to a more sensible place!
+        joint_states = []
+        for j in range(p.getNumJoints(self.kuka_uid)):
+            joint_states.append(p.getJointState(self.kuka_uid, j)[0])  # just position
+        print("\t".join(map(str, ["J", self.id, run_id, frame_num] + joint_states)))

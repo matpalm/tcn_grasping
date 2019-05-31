@@ -5,7 +5,7 @@ import os
 # TODO: pull in filename formatting cNN/rNN/RNNN.png util here
 
 def camera_img_fname(camera_id, run_id, frame_id):
-    return "c%02d/r%02d/f%03d.png" % (camera_id, run_id, frame_id)
+    return "c%03d/r%03d/f%04d.png" % (camera_id, run_id, frame_id)
 
 def random_in(a, b):
     if a > b:

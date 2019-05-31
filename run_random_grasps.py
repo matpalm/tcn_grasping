@@ -47,20 +47,21 @@ if False: # PERTURBED_CAMERA_HACKTASTIC_HACK
 else:
     configs = [camera.CameraConfig(seed=i) for i in range(opts.num_cameras)]
 
-kuka_env.cameras = [camera.Camera(camera_id=i, config=c, img_dir=opts.img_dir)
+kuka_env.cameras = [camera.Camera(camera_id=i, config=c,
+                                  img_dir=opts.img_dir, kuka_uid=kuka_env.kuka.kukaUid)
                     for i, c in enumerate(configs)]
 
 
 
 # do some grasps
 for _ in range(opts.num_grasps):
-    
+
     # pick random position above tray
     x = u.random_in(0.5, 0.7)
     y = u.random_in(-0.15, 0.25)
     z = 0.3
     pos_gripper = [x, y, z]
-    
+
     # pick random orientation of gripper (pointing down, random yaw)
     random_yaw = u.random_in(0, math.pi/2)
     orient_gripper = p.getQuaternionFromEuler([0, -math.pi, random_yaw])
@@ -86,5 +87,5 @@ for _ in range(opts.num_grasps):
     success = kuka_env.move_arm_to_pose(desired_pos_gripper=pos_gripper,
                                         desired_orient_gripper=orient_gripper,
                                         desired_finger_angle=0)
-    
+
 p.disconnect()

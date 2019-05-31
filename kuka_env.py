@@ -48,7 +48,7 @@ class KukaEnv(object):
 
     # hand rolled IK move of arm without constraints, dx/dy/dz limits in kuka class
     def move_arm_to_pose(self, desired_pos_gripper, desired_orient_gripper,
-                         desired_finger_angle, max_steps=300):
+                         desired_finger_angle, max_steps=200):
 
         # x range (0.5, 0.7)
         # y range (-0.15, 0.25)
