@@ -3,6 +3,8 @@
 
 see [the blog post](http://matpalm.com/blog/pybullet_tcn_grasping) for more details
 
+<img src="near_neighbour_egs.gif"/>
+
 ## generate images
 
 ### synthetic r/g/b squares
