@@ -63,7 +63,7 @@ class NumZeroLossCB(callbacks.Callback):
         self.summary_writer.add_summary(loss_histo)
         self.summary_writer.flush()
 
-callbacks = [callbacks.ModelCheckpoint(filepath="runs/%s/model.hdf5" % opts.run),
+callbacks = [callbacks.ModelCheckpoint(filepath="runs/%s/model.{epoch}.hdf5" % opts.run),
              callbacks.TensorBoard(log_dir="tb/%s" % opts.run),
              NumZeroLossCB()]
 model.fit(examples,

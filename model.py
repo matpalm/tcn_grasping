@@ -40,8 +40,10 @@ def construct_model(embedding_dim, learning_rate=None, margin=None):
     conv = Conv2D(filters=8, kernel_size=3, strides=2, padding='same', activation='relu')(inputs)
     conv = Conv2D(filters=16, kernel_size=3, strides=2, padding='same', activation='relu')(conv)
     conv = Conv2D(filters=32, kernel_size=3, strides=2, padding='same', activation='relu')(conv)
-    conv = Conv2D(filters=32, kernel_size=3, strides=2, padding='same', activation='relu')(conv)
-    conv = Conv2D(filters=32, kernel_size=3, strides=2, padding='same', activation='relu')(conv)
+    conv = Conv2D(filters=64, kernel_size=3, strides=2, padding='same', activation='relu')(conv)
+    conv = Conv2D(filters=128, kernel_size=3, strides=2, padding='same', activation='relu')(conv)
+    conv = Conv2D(filters=256, kernel_size=3, strides=2, padding='same', activation='relu')(conv)
+    conv = Conv2D(filters=256, kernel_size=1, strides=1, padding='same', activation='relu')(conv)
 
     mlp = Flatten()(conv)
     mlp = Dropout(rate=0.5)(mlp)
