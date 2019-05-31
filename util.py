@@ -2,8 +2,6 @@ import random
 from PIL import Image, ImageDraw
 import os
 
-# TODO: pull in filename formatting cNN/rNN/RNNN.png util here
-
 def camera_img_fname(camera_id, run_id, frame_id):
     return "c%03d/r%03d/f%04d.png" % (camera_id, run_id, frame_id)
 

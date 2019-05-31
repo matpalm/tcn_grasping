@@ -12,17 +12,17 @@ class TripletSelection(object):
         # use root dir to determine number of cameras
         entries = os.listdir(img_dir)
         for entry in entries:
-            if not re.match("^c\d\d$", entry):
+            if not re.match("^c\d\d\d$", entry):
                 raise Exception("unexpected entry? [%s]" % entries)
         self.num_cameras = len(entries)
 
         # collect size of runs / frames per run assuming c00 is a
         # canconical reference for other cameras
         self.img_dir = img_dir
-        self.num_runs = len(os.listdir("%s/c00" % img_dir))
+        self.num_runs = len(os.listdir("%s/c000" % img_dir))
         self.run_to_num_frames = [0] * self.num_runs
         for run_id in range(self.num_runs):
-            num_frames = len(os.listdir("%s/c00/r%02d" % (img_dir, run_id)))
+            num_frames = len(os.listdir("%s/c000/r%03d" % (img_dir, run_id)))
             assert num_frames >= 1
             self.run_to_num_frames[run_id] = num_frames
 
