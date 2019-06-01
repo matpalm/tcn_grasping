@@ -8,11 +8,12 @@ import os
 import util as u
 from data import H, W
 
-class CameraConfig(object):
+class RandomCameraConfig(object):
 
-    def __init__(self, seed):
-        random.seed(seed)
-        np.random.seed(seed)
+    def __init__(self, seed=None):
+        if seed is not None:
+            random.seed(seed)
+            np.random.seed(seed)
 
         # TODO: push config of these up
         self.width = W
@@ -41,63 +42,63 @@ class CameraConfig(object):
         self.light_direction = random.choice([[1,1,1], [0,1,1], [1,0,1], [1,1,0]])
 
         # reseed RNG
-        random.seed()
-        np.random.seed()
+        if seed is not None:
+            random.seed()
+            np.random.seed()
 
 class Camera(object):
 
-    def __init__(self, camera_id, config, img_dir, kuka_uid):
+    def __init__(self, camera_id, img_dir, kuka_uid, fixed_config=None):
         self.id = camera_id
         self.img_dir = img_dir
         self.kuka_uid = kuka_uid
-        self.config = config
+        self.fixed_config = fixed_config
+        if not os.path.exists(img_dir):
+            os.makedirs(img_dir)
 
-        self.proj_matrix = p.computeProjectionMatrixFOV(fov=config.fov,
-                                                        aspect=float(config.width) / config.height,
-                                                        nearVal=0.1,
-                                                        farVal=100.0)
+    def render(self, frame_num):
+        # use fixed config (if supplied) otherwise generate
+        # a new random one for this render
+        if self.fixed_config is None:
+            config = RandomCameraConfig()
+        else:
+            config = self.fixed_config
 
-        self.update_view_matrix(config.camera_target, config.distance,
-                                config.yaw, config.pitch)
+        proj_matrix = p.computeProjectionMatrixFOV(fov=config.fov,
+                                                   aspect=float(config.width) / config.height,
+                                                   nearVal=0.1,
+                                                   farVal=100.0)
 
-
-    def update_view_matrix(self, camera_target, distance, yaw, pitch):
-        self.view_matrix = p.computeViewMatrixFromYawPitchRoll(cameraTargetPosition=camera_target,
-                                                               distance=distance,
-                                                               yaw=yaw,
-                                                               pitch=pitch,
-                                                               roll=0,  # varying this does nothing (?)
-                                                               upAxisIndex=2)
-
-    def render(self, run_id, frame_num):
+        view_matrix = p.computeViewMatrixFromYawPitchRoll(cameraTargetPosition=config.camera_target,
+                                                          distance=config.distance,
+                                                          yaw=config.yaw,
+                                                          pitch=config.pitch,
+                                                          roll=0,  # varying this does nothing (?)
+                                                          upAxisIndex=2)
 
         # call bullet to render
-        rendering = p.getCameraImage(width=self.config.width, height=self.config.height,
-                                     viewMatrix=self.view_matrix,
-                                     projectionMatrix=self.proj_matrix,
-                                     lightColor=self.config.light_color,
-                                     lightDirection=self.config.light_direction,
+        rendering = p.getCameraImage(width=config.width, height=config.height,
+                                     viewMatrix=view_matrix,
+                                     projectionMatrix=proj_matrix,
+                                     lightColor=config.light_color,
+                                     lightDirection=config.light_direction,
                                      shadow=1,
                                      renderer=p.ER_BULLET_HARDWARE_OPENGL)
 
         # convert RGB to PIL image
         rgb_array = np.array(rendering[2], dtype=np.uint8)
-        rgb_array = rgb_array.reshape((self.config.height, self.config.width, 4))
+        rgb_array = rgb_array.reshape((config.height, config.width, 4))
         rgb_array = rgb_array[:, :, :3]
         img = Image.fromarray(rgb_array)
 
         # save image
-        output_fname = u.camera_img_fname(self.id, run_id, frame_num)
-        full_output_fname = "%s/%s" % (self.img_dir, output_fname)
-        dir_name = os.path.dirname(full_output_fname)
-        if not os.path.exists(dir_name):
-            os.makedirs(dir_name)
-        print("full_output_fname", full_output_fname)
-        img.save(full_output_fname)
+        output_fname = "%s/%s" % (self.img_dir, u.frame_filename_format(frame_num))
+        print("output_fname", output_fname)
+        img.save(output_fname)
 
         # capture joint states
         # TODO: write this to a more sensible place!
-        joint_states = []
-        for j in range(p.getNumJoints(self.kuka_uid)):
-            joint_states.append(p.getJointState(self.kuka_uid, j)[0])  # just position
-        print("\t".join(map(str, ["J", self.id, run_id, frame_num] + joint_states)))
+#        joint_states = []
+#        for j in range(p.getNumJoints(self.kuka_uid)):
+#            joint_states.append(p.getJointState(self.kuka_uid, j)[0])  # just position
+#        print("\t".join(map(str, ["J", self.id, run_id, frame_num] + joint_states)))

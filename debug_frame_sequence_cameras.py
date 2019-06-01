@@ -27,9 +27,11 @@ collage = Image.new('RGB', (W*num_cols, H*num_rows), (0,0,0))
 
 for frame_offset in range(opts.num_frames):
     for row, camera_id in enumerate(camera_ids):
-        fname = "%s/%s" % (opts.img_dir,
-                           u.camera_img_fname(camera_id, opts.run,
-                                              opts.initial_frame + frame_offset))
+        fname = "/".join([opts.img_dir,
+                          u.run_dir_format(opts.run),
+                          u.camera_dir_format(camera_id),
+                          u.frame_filename_format(opts.initial_frame + frame_offset)
+                         ])
         img = Image.open(fname)
         collage.paste(img, (W*frame_offset, H*row))
 

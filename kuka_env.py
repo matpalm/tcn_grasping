@@ -8,11 +8,11 @@ import random
 
 class KukaEnv(object):
 
-    def __init__(self, gui, render_freq, run_id, num_objects, obj_urdf_dir):
+    def __init__(self, gui, render_freq, max_frames_to_render, num_objects, obj_urdf_dir):
         self.sim_steps = 0
         self.frame_num = 0
         self.render_freq = render_freq
-        self.run_id = run_id             # for rendering filename
+        self.max_frames_to_render = max_frames_to_render
         self.cameras = []
 
         if gui:
@@ -48,7 +48,7 @@ class KukaEnv(object):
 
     # hand rolled IK move of arm without constraints, dx/dy/dz limits in kuka class
     def move_arm_to_pose(self, desired_pos_gripper, desired_orient_gripper,
-                         desired_finger_angle, max_steps=200):
+                         desired_finger_angle, max_steps=300):
 
         # x range (0.5, 0.7)
         # y range (-0.15, 0.25)
@@ -109,22 +109,24 @@ class KukaEnv(object):
                                         positionGain=0.3,
                                         velocityGain=1)
 
-                # gripper fingers
-                p.setJointMotorControl2(self.kuka.kukaUid, 8, p.POSITION_CONTROL,
-                                        targetPosition=-desired_finger_angle, force=self.kuka.fingerAForce)
-                p.setJointMotorControl2(self.kuka.kukaUid, 11, p.POSITION_CONTROL,
-                                        targetPosition=desired_finger_angle,force=self.kuka.fingerBForce)
-                p.setJointMotorControl2(self.kuka.kukaUid, 10, p.POSITION_CONTROL,
-                                        targetPosition=0, force=self.kuka.fingerTipForce)
-                p.setJointMotorControl2(self.kuka.kukaUid, 13, p.POSITION_CONTROL,
-                                        targetPosition=0, force=self.kuka.fingerTipForce)
+            # gripper fingers
+            p.setJointMotorControl2(self.kuka.kukaUid, 8, p.POSITION_CONTROL,
+                                    targetPosition=-desired_finger_angle, force=self.kuka.fingerAForce)
+            p.setJointMotorControl2(self.kuka.kukaUid, 11, p.POSITION_CONTROL,
+                                    targetPosition=desired_finger_angle,force=self.kuka.fingerBForce)
+            p.setJointMotorControl2(self.kuka.kukaUid, 10, p.POSITION_CONTROL,
+                                    targetPosition=0, force=self.kuka.fingerTipForce)
+            p.setJointMotorControl2(self.kuka.kukaUid, 13, p.POSITION_CONTROL,
+                                    targetPosition=0, force=self.kuka.fingerTipForce)
 
-                # step sim!
-                p.stepSimulation()
+            # step sim!
+            p.stepSimulation()
 
-                # inc sim steps and take pics if required
-                self.sim_steps += 1
-                if self.sim_steps % self.render_freq == 0:
-                    for c in self.cameras:
-                        c.render(self.run_id, self.frame_num)
-                    self.frame_num += 1
+            # inc sim steps and take pics if required
+            self.sim_steps += 1
+            if self.sim_steps % self.render_freq == 0:
+                for c in self.cameras:
+                    c.render(self.frame_num)
+                self.frame_num += 1
+                if self.frame_num > self.max_frames_to_render:
+                    raise u.MaxFramesRenderedException()

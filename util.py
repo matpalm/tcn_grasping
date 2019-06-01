@@ -2,8 +2,22 @@ import random
 from PIL import Image, ImageDraw
 import os
 
-def camera_img_fname(camera_id, run_id, frame_id):
-    return "c%03d/r%03d/f%04d.png" % (camera_id, run_id, frame_id)
+class MaxFramesRenderedException(Exception):
+    pass
+
+def run_dir_format(run_id):
+    return "r%03d" % run_id
+
+def camera_dir_format(camera_id):
+    return "c%03d" % camera_id
+
+def frame_filename_format(frame_id):
+    return "f%04d.png" % frame_id
+
+def run_camera_frame_filename(run_id, camera_id, frame_id):
+    return "/".join([run_dir_format(run_id),
+                     camera_dir_format(camera_id),
+                     frame_filename_format(frame_id)])
 
 def random_in(a, b):
     if a > b:
