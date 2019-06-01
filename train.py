@@ -21,6 +21,9 @@ parser.add_argument('--epochs', type=int, default=20)
 parser.add_argument('--steps-per-epoch', type=int, default=20)
 parser.add_argument('--run', type=str, default='.',
                     help='run name to use as postfix for model saving, tb output')
+parser.add_argument('--model-input', type=str, default=None,
+                    help='if set, load weights from this model file')
+
 opts = parser.parse_args()
 print(opts)
 
@@ -31,6 +34,7 @@ examples = data.a_p_n_iterator(batch_size=opts.batch_size,
                                negative_frame_range=opts.negative_frame_range)
 
 model, inputs, loss_fn = m.construct_model(embedding_dim=opts.embedding_dim,
+                                           initial_model=opts.model_input,
                                            learning_rate=opts.learning_rate,
                                            margin=opts.margin)
 
@@ -52,13 +56,18 @@ class NumZeroLossCB(callbacks.Callback):
         # based anyways...
         next_egs = self.sess.run(self.examples)
         sess = tf.keras.backend.get_session()
-        per_elem_loss, loss_histo = sess.run([loss_fn.per_element_hinge_loss_op, self.loss_histo],
-                                             feed_dict={inputs: next_egs})
+        per_elem_loss, pre_margin_loss, loss_histo = sess.run([loss_fn.per_element_hinge_loss_op,
+                                                               loss_fn.pre_margin_loss,
+                                                               self.loss_histo],
+                                                              feed_dict={inputs: next_egs})
         percentage_non_zero = np.count_nonzero(per_elem_loss) / self.batch_size
         summary_values = [tf.Summary.Value(tag='percentage_batch_non_zero_loss',
                                            simple_value=percentage_non_zero),
                           tf.Summary.Value(tag='mean_batch_loss',
-                                           simple_value=np.mean(per_elem_loss))]
+                                           simple_value=np.mean(per_elem_loss)),
+                          tf.Summary.Value(tag='mean_pre_margin_loss',
+                                           simple_value=np.mean(pre_margin_loss))]
+
         self.summary_writer.add_summary(tf.Summary(value=summary_values), epoch)
         self.summary_writer.add_summary(loss_histo)
         self.summary_writer.flush()

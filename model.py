@@ -25,6 +25,7 @@ class TripletLoss(object):
         dist_a_p = tf.norm(anchor_embeddings - positive_embeddings, axis=1)  # (B)
         dist_a_n = tf.norm(anchor_embeddings - negative_embeddings, axis=1)  # (B)
         # check margin constraint and average over batch
+        self.pre_margin_loss = dist_a_p - dist_a_n  # DEBUG
         constraint = dist_a_p - dist_a_n + self.margin                       # (B)
         self.per_element_hinge_loss_op = tf.maximum(0.0, constraint)         # (B)
         return self.per_element_hinge_loss_op
@@ -33,7 +34,7 @@ class TripletLoss(object):
         return tf.reduce_mean(self.per_element_hinge_loss())
 
 
-def construct_model(embedding_dim, learning_rate=None, margin=None):
+def construct_model(embedding_dim, initial_model=None, learning_rate=None, margin=None):
 
     inputs = Input(shape=(data.H, data.W, 3), name='inputs')
 
@@ -43,7 +44,6 @@ def construct_model(embedding_dim, learning_rate=None, margin=None):
     conv = Conv2D(filters=64, kernel_size=3, strides=2, padding='same', activation='relu')(conv)
     conv = Conv2D(filters=128, kernel_size=3, strides=2, padding='same', activation='relu')(conv)
     conv = Conv2D(filters=256, kernel_size=3, strides=2, padding='same', activation='relu')(conv)
-    conv = Conv2D(filters=256, kernel_size=1, strides=1, padding='same', activation='relu')(conv)
 
     mlp = Flatten()(conv)
     mlp = Dropout(rate=0.5)(mlp)
@@ -54,6 +54,9 @@ def construct_model(embedding_dim, learning_rate=None, margin=None):
 
     model = Model(inputs=inputs, outputs=embeddings)
     print(model.summary())
+
+    if initial_model is not None:
+        model.load_weights(initial_model)
 
     # use setting of learning_rate (and margin) to denote if
     # we should compile also
