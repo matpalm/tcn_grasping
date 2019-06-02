@@ -28,9 +28,13 @@ def filenames_generator():
         yield filename
 
 def decode_img(img_name):
-    return tf.image.decode_jpeg(tf.read_file(img_name))   # (H, W, 3)   uint8
+    img = tf.image.decode_jpeg(tf.read_file(img_name))   # (H, W, 3)   uint8
+    img = tf.cast(img, tf.float32)
+    img = (img / 127.5) - 1.0       # (-1, 1)
+    return img
 
-iter = (tf.data.Dataset.from_generator(filenames_generator, output_types=(tf.string))
+iter = (tf.data.Dataset
+        .from_generator(filenames_generator, output_types=(tf.string))
         .map(decode_img, num_parallel_calls=8)
         .batch(64)
         .prefetch(tf.contrib.data.AUTOTUNE)

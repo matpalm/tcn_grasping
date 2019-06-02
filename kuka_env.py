@@ -128,5 +128,5 @@ class KukaEnv(object):
                 for c in self.cameras:
                     c.render(self.frame_num)
                 self.frame_num += 1
-                if self.frame_num > self.max_frames_to_render:
+                if self.frame_num == self.max_frames_to_render:
                     raise u.MaxFramesRenderedException()

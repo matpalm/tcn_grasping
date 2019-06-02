@@ -47,16 +47,22 @@ class TripletSelection(object):
             positive_camera = random.randint(0, self.num_cameras-1)
         positive_example = "%s/%s" % (self.img_dir, u.run_camera_frame_filename(anchor_run, positive_camera, anchor_frame))
 
-        # negative is a frame from same run as anchor, but at another (nearby) time
+        # negative is a frame from same camera as anchor, but at another (nearby) time
+        # TODO: had this as same run, same camera, but things aren't working all of a sudden
+        #       so trying this (which was original version)
+        negative_run = anchor_run
         negative_frame = anchor_frame
-        while negative_frame == anchor_frame or negative_frame < 0 or negative_frame > self.num_frames:
-            if self.negative_frame_range is None:
-                negative_frame = random.randint(0, self.num_frames-1)
-            else:
-                negative_frame = (anchor_frame
-                                  + random.randint(0, 2*self.negative_frame_range)
-                                  - self.negative_frame_range)  # +/- negative_frame_range
-        negative_example = "%s/%s" % (self.img_dir, u.run_camera_frame_filename(anchor_run, anchor_camera, negative_frame))
+        while negative_run == anchor_run and negative_frame == anchor_frame:
+            negative_run = random.randint(0, self.num_runs-1)
+            negative_frame = random.randint(0, self.num_frames-1)
+#        while negative_frame == anchor_frame or negative_frame < 0 or negative_frame > self.num_frames:
+#            if self.negative_frame_range is None:
+#                negative_frame = random.randint(0, self.num_frames-1)
+#            else:
+#                negative_frame = (anchor_frame
+#                                  + random.randint(0, 2*self.negative_frame_range)
+#                                  - self.negative_frame_range)  # +/- negative_frame_range
+        negative_example = "%s/%s" % (self.img_dir, u.run_camera_frame_filename(negative_run, anchor_camera, negative_frame))
 
         return anchor_example, positive_example, negative_example
 
