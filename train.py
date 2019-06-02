@@ -48,7 +48,6 @@ class NumZeroLossCB(callbacks.Callback):
                                              negative_frame_range=opts.negative_frame_range).
                          make_one_shot_iterator().get_next())
         self.summary_writer = tf.summary.FileWriter("tb/%s" % opts.run)
-        self.loss_histo = tf.summary.histogram("batch_loss_histo", loss_fn.per_element_hinge_loss_op)
 
     def on_epoch_end(self, epoch, logs):
         # TODO: how do we just use the models iterator here? don't care
@@ -56,24 +55,16 @@ class NumZeroLossCB(callbacks.Callback):
         # based anyways...
         next_egs = self.sess.run(self.examples)
         sess = tf.keras.backend.get_session()
-        per_elem_loss, pre_margin_loss, loss_histo = sess.run([loss_fn.per_element_hinge_loss_op,
-                                                               loss_fn.pre_margin_loss,
-                                                               self.loss_histo],
-                                                              feed_dict={inputs: next_egs})
-        percentage_non_zero = np.count_nonzero(per_elem_loss) / self.batch_size
-        summary_values = [tf.Summary.Value(tag='percentage_batch_non_zero_loss',
-                                           simple_value=percentage_non_zero),
-                          tf.Summary.Value(tag='mean_batch_loss',
-                                           simple_value=np.mean(per_elem_loss)),
-                          tf.Summary.Value(tag='mean_pre_margin_loss',
-                                           simple_value=np.mean(pre_margin_loss))]
-
-        self.summary_writer.add_summary(tf.Summary(value=summary_values), epoch)
-        self.summary_writer.add_summary(loss_histo)
+        summaries = sess.run(loss_fn.summaries, feed_dict={inputs: next_egs})
+#        percentage_non_zero = np.count_nonzero(per_elem_loss) / self.batch_size
+        # log stats
+        for summary in summaries:
+            self.summary_writer.add_summary(summary, global_step=epoch)
         self.summary_writer.flush()
 
 callbacks = [callbacks.ModelCheckpoint(filepath="runs/%s/model.{epoch}.hdf5" % opts.run),
              callbacks.TensorBoard(log_dir="tb/%s" % opts.run),
+             callbacks.TerminateOnNaN(),
              NumZeroLossCB()]
 model.fit(examples,
           epochs=opts.epochs,
