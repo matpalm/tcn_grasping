@@ -1,8 +1,15 @@
 #!/usr/bin/env bash
 set -ex
 
-# take snapshop of model (in case still training)
-cp runs/$1/model.hdf5 /tmp
+#find imgs/03/ -type f | sort | gzip > imgs_03.manifest.gz
+zcat imgs_03.manifest.gz | grep r000.c000 | awk 'NR%3==0' > source.manifest &
+zcat imgs_03.manifest.gz | grep c001 | awk 'NR%5==0' > target_a.manifest &
+zcat imgs_03.manifest.gz | grep c002 | awk 'NR%5==0' > target_b.manifest &
+wait
+wc -l *manifest
+
+# take snapshop of latest model (in case still training)
+cp `./latest_model_in.py runs/$1` /tmp/model.hdf5
 
 # embed images from reference sequence
 time ./embed_imgs.py \
@@ -39,10 +46,7 @@ time ./embed_imgs.py \
 wait
 
 # join into one file, sample and stitch
-#join /tmp/source_target_[ab].nns | awk 'NR%10==0' | ./stitch.py
 join /tmp/source_target_[ab].nns | ./stitch.py
-
-exit
 
 # make a gif
 convert stitch*png runs/$1/near_neighbour_egs.gif

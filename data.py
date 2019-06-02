@@ -1,5 +1,4 @@
 import tensorflow as tf
-import triplet_selection
 
 #H, W = 240, 320
 H, W = 180, 240
@@ -19,13 +18,10 @@ def decode_triple(a, p, n):
 def flatten_apn_into_batch(batched_a_p_n):
   return tf.reshape(batched_a_p_n, (-1, H, W, 3))
 
-def a_p_n_iterator(batch_size, img_dir, negative_frame_range):
+def a_p_n_iterator(batch_size, triplet_selector):
   # return batch of examples (batch, 3(apn), h, w, 3(rgb))
-
-  triplets = triplet_selection.TripletSelection(img_dir, negative_frame_range)
-
   # TODO: from_generator triggers py_func => deprecated
-  dataset = tf.data.Dataset.from_generator(triplets.random_triples,
+  dataset = tf.data.Dataset.from_generator(triplet_selector.random_triples,
                                            output_types=(tf.string,   # anchor
                                                          tf.string,   # positive
                                                          tf.string))  # negative
