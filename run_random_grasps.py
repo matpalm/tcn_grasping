@@ -19,6 +19,8 @@ parser.add_argument('--joint-info-dir', type=str, default='joint_infos',
 parser.add_argument('--run', type=int, default=1, help='run_id for img saving')
 parser.add_argument('--num-cameras', type=int, default=20, help='number of cameras')
 parser.add_argument('--fixed-camera-configs', action='store_true', help='if set, have fixed camera configs')
+parser.add_argument('--fixed-camera-seed-offset', type=int, default=0,
+                    help='offset to add to seed when generating fixed cameras')
 parser.add_argument('--num-objects', type=int, default=10, help='number of objects in tray')
 parser.add_argument('--obj-urdf-dir', type=str, default='./objs', help='base dir for procedural objs')
 parser.add_argument('--max-frames-to-render', type=int, default=100, help='render this many frames before stopping')
@@ -38,7 +40,7 @@ for i in range(opts.num_cameras):
     camera_img_dir = "/".join([opts.img_dir, u.run_dir_format(opts.run), u.camera_dir_format(i)])
 
     if opts.fixed_camera_configs:
-        fixed_config = camera.RandomCameraConfig(seed=i)
+        fixed_config = camera.RandomCameraConfig(seed=i+opts.fixed_camera_seed_offset)
     else:
         fixed_config = None
 
