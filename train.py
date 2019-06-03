@@ -20,7 +20,7 @@ parser.add_argument('--negative-frame-range', type=int, default=None,
                     help="select negative +/- this value; if None use entire range. only valid"
                          " for --negative-selection-mode=ranged_frame")
 parser.add_argument('--negative-selection-mode', type=str, default='random_frame_random_run',
-                    help='one of [random_frame_random_run, random_frame_same_run]')
+                    help='one of [random_frame_random_run, random_frame_same_run, ranged_frame]')
 parser.add_argument('--epochs', type=int, default=20)
 parser.add_argument('--steps-per-epoch', type=int, default=20)
 parser.add_argument('--run', type=str, default='.',

@@ -12,7 +12,7 @@ parser.add_argument('--img-dir', type=str, default='imgs')
 parser.add_argument('--negative-frame-range', type=int, default=None,
                     help="select negative +/- this value; if None use entire range")
 parser.add_argument('--negative-selection-mode', type=str, default='random_frame_random_run',
-                    help='one of [random_frame_random_run, random_frame_same_run]')
+                    help='one of [random_frame_random_run, random_frame_same_run, ranged_frame]')
 opts = parser.parse_args()
 
 sess = tf.Session()
