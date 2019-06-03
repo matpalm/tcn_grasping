@@ -11,7 +11,11 @@ import util as u
 import kuka_env
 
 parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-parser.add_argument('--img-dir', type=str, default='imgs', help='base dir for output')
+parser.add_argument('--img-dir', type=str, default='imgs',
+                    help='base dir for output. images are save to {img_dir}/rNNN/cNNN/fNNNN.png')
+parser.add_argument('--joint-info-dir', type=str, default='joint_infos',
+                    help="base dir for joint info. joint info is saved to {joint_info_dir}/rNNN/cNNN.tsv"
+                         " None => don't save joint info")
 parser.add_argument('--run', type=int, default=1, help='run_id for img saving')
 parser.add_argument('--num-cameras', type=int, default=20, help='number of cameras')
 parser.add_argument('--fixed-camera-configs', action='store_true', help='if set, have fixed camera configs')
@@ -23,8 +27,6 @@ parser.add_argument('--gui', action='store_true', help='if set, run with bullet 
 opts = parser.parse_args()
 print("opts", opts)
 
-# images are save to BASE/rNNN/cNNN/fNNNN.png
-
 kuka_env = kuka_env.KukaEnv(gui=opts.gui,
                             render_freq=opts.render_freq,
                             max_frames_to_render=opts.max_frames_to_render,
@@ -33,13 +35,22 @@ kuka_env = kuka_env.KukaEnv(gui=opts.gui,
 
 kuka_env.cameras = []
 for i in range(opts.num_cameras):
+    camera_img_dir = "/".join([opts.img_dir, u.run_dir_format(opts.run), u.camera_dir_format(i)])
+
     if opts.fixed_camera_configs:
         fixed_config = camera.RandomCameraConfig(seed=i)
     else:
         fixed_config = None
-    camera_img_dir = "%s/%s/%s" % (opts.img_dir, u.run_dir_format(opts.run), u.camera_dir_format(i))
+
+    if opts.joint_info_dir is None:
+        camera_joint_info_file = None
+    else:
+        camera_joint_info_file = "/".join([opts.joint_info_dir, u.run_dir_format(opts.run), u.camera_dir_format(i)]) + ".tsv"
+        u.ensure_dir_exists_for_file(camera_joint_info_file)
+
     kuka_env.cameras.append(camera.Camera(camera_id=i,
                                           img_dir=camera_img_dir,
+                                          joint_info_file=camera_joint_info_file,
                                           kuka_uid=kuka_env.kuka.kukaUid,
                                           fixed_config=fixed_config))
 

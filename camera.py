@@ -48,9 +48,13 @@ class RandomCameraConfig(object):
 
 class Camera(object):
 
-    def __init__(self, camera_id, img_dir, kuka_uid, fixed_config=None):
+    def __init__(self, camera_id, img_dir, joint_info_file, kuka_uid, fixed_config=None):
         self.id = camera_id
         self.img_dir = img_dir
+        if joint_info_file == None:
+            self.joint_info_file = None
+        else:
+            self.joint_info_file = open(joint_info_file, "w")
         self.kuka_uid = kuka_uid
         self.fixed_config = fixed_config
         if not os.path.exists(img_dir):
@@ -97,8 +101,9 @@ class Camera(object):
         img.save(output_fname)
 
         # capture joint states
-        # TODO: write this to a more sensible place!
-#        joint_states = []
-#        for j in range(p.getNumJoints(self.kuka_uid)):
-#            joint_states.append(p.getJointState(self.kuka_uid, j)[0])  # just position
-#        print("\t".join(map(str, ["J", self.id, run_id, frame_num] + joint_states)))
+        if self.joint_info_file is not None:
+            joint_info_output = [frame_num]
+            for j in range(p.getNumJoints(self.kuka_uid)):
+                # output just position (0th) element, ignore velocity, torques etc
+                joint_info_output.append(p.getJointState(self.kuka_uid, j)[0])
+            print("\t".join(map(str, joint_info_output)), file=self.joint_info_file)

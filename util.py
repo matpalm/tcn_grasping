@@ -40,3 +40,6 @@ def slurp_manifest_as_idx_to_name_dict(manifest):
 def ensure_dir_exists(d):
     if not os.path.exists(d):
         os.makedirs(d)
+
+def ensure_dir_exists_for_file(f):
+    ensure_dir_exists(os.path.dirname(f))
