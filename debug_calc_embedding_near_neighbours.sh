@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -ex
 
-#find imgs/03/ -type f | sort | gzip > imgs_03.manifest.gz
+#find imgs/03_heldout/ -type f | sort | gzip > imgs_03.manifest.gz
 zcat imgs_03.manifest.gz | grep r000.c000 | awk 'NR%3==0' > source.manifest &
 zcat imgs_03.manifest.gz | grep c001 | awk 'NR%5==0' > target_a.manifest &
 zcat imgs_03.manifest.gz | grep c002 | awk 'NR%5==0' > target_b.manifest &
@@ -46,7 +46,7 @@ time ./embed_imgs.py \
 wait
 
 # join into one file, sample and stitch
-join /tmp/source_target_[ab].nns | ./stitch.py
+join /tmp/source_target_[ab].nns | ./stitch.py > stitch.out
 
 # make a gif
 convert stitch*png runs/$1/near_neighbour_egs.gif

@@ -1,16 +1,35 @@
 #!/usr/bin/env python3
 import random
-for run_sid in range(100):
-    learning_rate = random.choice([1e-5, 1e-4, 1e-3])
-    margin = random.choice([0, 1e-4, 1e-3, 1e-2, 0.1])
-    run_id = "29_%02d_lr%f_m%f" % (run_sid, learning_rate, margin)
-    cmd = "./train.py"
-    cmd += " --run %s" % run_id
-    cmd += " --img-dir imgs/03"
-    cmd += " --learning-rate %f" % learning_rate
-    cmd += " --epochs 100"
-    cmd += " --steps-per-epoch 100"
-    cmd += " --embedding-dim 32"
-    cmd += " --margin %f" % margin
-    cmd += " >29_%s.out 2>29_%s.err" % (run_sid, run_sid)
-    print(cmd)
+
+# margin 0, 0.0001, 0.001, 0.01
+# random_frame_random_run, ranged_frame:1000, ranged_frame:100, ranged_frame:10
+
+run_sid = 0
+
+def combos():
+    for margin in [0.0001, 0.001, 0.01]:
+        for negative_strategy in ['random_frame_random_run', 'ranged_frame:1000', 'ranged_frame:100', 'ranged_frame:10']:
+            for learning_rate in [1e-3, 1e-4]:
+                for embedding_dim in [32, 64]:
+                    yield margin, negative_strategy, learning_rate, embedding_dim
+
+for margin, negative_strategy, learning_rate, embedding_dim in combos():
+    run_sid += 1
+    for sub_run in range(3):
+        run_id = "36_%03d_%d" % (run_sid, sub_run)
+        cmd = "./train.py"
+        cmd += " --run %s" % run_id
+        cmd += " --img-dir imgs/03"
+        cmd += " --learning-rate %f" % learning_rate
+        cmd += " --epochs 100"
+        cmd += " --steps-per-epoch 200"
+        cmd += " --embedding-dim %d" % embedding_dim
+        cmd += " --margin %f" % margin
+        if negative_strategy == 'random_frame_random_run':
+            cmd += " --negative-selection-mode random_frame_random_run"
+        else:
+            nrf = negative_strategy.replace("ranged_frame:", "")
+            cmd += " --negative-selection-mode ranged_frame"
+            cmd += " --negative-frame-range %s" % nrf
+        cmd += " >%s.out 2>%s.err" % (run_id, run_id)
+        print(cmd)
