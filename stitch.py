@@ -10,11 +10,11 @@ N = None
 collage = None
 for i, line in enumerate(sys.stdin):
     cols = line.strip().split(" ")
-    print(cols)
+    print("/t".join(cols))
     if N is None:
         N = len(cols)
     else:
-        assert N == len(cols)        
+        assert N == len(cols)
     if collage is None:
         collage = Image.new('RGB', ((W+BW)*N, H), (128,128,128))
     for j, img in enumerate(cols):

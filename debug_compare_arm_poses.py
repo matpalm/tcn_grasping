@@ -1,12 +1,21 @@
 #!/usr/bin/env python3
 
+import argparse
 import matplotlib.pyplot as plt
 import numpy as np
 import random
 import re
+import os
 import redis
 import seaborn as sns
 import sys
+
+parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+parser.add_argument('--run', type=str, default=None)
+opts = parser.parse_args()
+
+if not os.path.exists("runs/%s/source_target_joined.ssv" % opts.run):
+    raise Exception("no source_target_joined.ssv; need to run debug_calc_embedding_near_neighbours.sh")
 
 r = redis.Redis()
 
@@ -28,11 +37,11 @@ def rcf(filename):
     m = re.match(".*/r(\d\d\d)/c(\d\d\d)/f(\d\d\d\d).png$", filename)
     return tuple(map(int, m.groups()))
 
-
 distances_ref_target_a = []
 distances_ref_target_b = []
-for line in open("stitch.out", "r"):
-    c = eval(line.strip())
+for line in open("runs/%s/source_target_joined.ssv" % opts.run, "r"):
+    c = line.strip().split(" ")
+    assert len(c) == 3
     for i in range(3):
         assert c[i].startswith("imgs/03_heldout/")
     r0, c0, f0 = rcf(c[0])
@@ -60,6 +69,11 @@ for _ in range(1000):
 sns.distplot(distances, label='...random')
 plt.axvline(np.mean(distances), c='green')
 
-plt.title("pose distances from reference to ...")
+print("means... random", np.mean(distances),
+      "target_a", np.mean(distances_ref_target_a),
+      "target_b", np.mean(distances_ref_target_b))
+
+plt.title("run %s pose distances from reference to ..." % opts.run)
 plt.legend()
-plt.savefig("blog_imgs/pose_distances_from_ref.png")
+plt.xlim(-0.5, 4)
+plt.savefig("blog_imgs/pose_distances_from_ref.%s.png" % opts.run)

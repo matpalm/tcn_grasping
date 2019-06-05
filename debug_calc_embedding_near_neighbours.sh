@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -ex
 
+EMBEDDING_DIM=128
+
 #find imgs/03_heldout/ -type f | sort | gzip > imgs_03.manifest.gz
 zcat imgs_03.manifest.gz | grep r000.c000 | awk 'NR%3==0' > source.manifest &
 zcat imgs_03.manifest.gz | grep c001 | awk 'NR%5==0' > target_a.manifest &
@@ -15,21 +17,21 @@ cp `./latest_model_in.py runs/$1` /tmp/model.hdf5
 time ./embed_imgs.py \
 --manifest source.manifest \
 --model-input /tmp/model.hdf5 \
---embedding-dim 32 \
+--embedding-dim $EMBEDDING_DIM \
 --embeddings-output /tmp/source.embeddings.npy
 
 # embed images from target_a set
 time ./embed_imgs.py \
 --manifest target_a.manifest \
 --model-input /tmp/model.hdf5 \
---embedding-dim 32 \
+--embedding-dim $EMBEDDING_DIM \
 --embeddings-output /tmp/target_a.embeddings.npy
 
 # embed images from target_b set
 time ./embed_imgs.py \
 --manifest target_b.manifest \
 --model-input /tmp/model.hdf5 \
---embedding-dim 32 \
+--embedding-dim $EMBEDDING_DIM \
 --embeddings-output /tmp/target_b.embeddings.npy
 
 # do near neighbour calcs between (source, target_a) & (source, target_b)
@@ -46,7 +48,12 @@ time ./embed_imgs.py \
 wait
 
 # join into one file, sample and stitch
-join /tmp/source_target_[ab].nns | ./stitch.py > stitch.out
+join /tmp/source_target_[ab].nns > runs/$1/source_target_joined.ssv
+
+exit
+
+# stitch images
+./stitch.py < source_target_joined.ssv > stitch.out
 
 # make a gif
 convert stitch*png runs/$1/near_neighbour_egs.gif
