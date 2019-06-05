@@ -10,7 +10,6 @@ N = None
 collage = None
 for i, line in enumerate(sys.stdin):
     cols = line.strip().split(" ")
-    print("/t".join(cols))
     if N is None:
         N = len(cols)
     else:

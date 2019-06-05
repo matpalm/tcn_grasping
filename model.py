@@ -53,12 +53,15 @@ def construct_model(embedding_dim, initial_model=None, learning_rate=None, margi
 
     conv = Conv2D(filters=16, kernel_size=5, strides=2, padding='same', activation='elu')(inputs)
     conv = Conv2D(filters=32, kernel_size=3, strides=2, padding='same', activation='elu')(conv)
-    conv = Conv2D(filters=32, kernel_size=3, strides=2, padding='same', activation='elu')(conv)
-    conv = Conv2D(filters=32, kernel_size=3, strides=2, padding='same', activation='elu')(conv)
+    conv = Conv2D(filters=64, kernel_size=3, strides=2, padding='same', activation='elu')(conv)
+    conv = Conv2D(filters=128, kernel_size=3, strides=2, padding='same', activation='elu')(conv)
+    conv = Conv2D(filters=128, kernel_size=1, strides=1, padding='same', activation='elu')(conv)
+    conv = Conv2D(filters=256, kernel_size=3, strides=2, padding='same', activation='elu')(conv)
+    conv = Conv2D(filters=256, kernel_size=1, strides=1, padding='same', activation='elu')(conv)
 
     mlp = Flatten()(conv)
     mlp = Dropout(rate=0.5)(mlp)
-    mlp = Dense(units=64, activation='elu')(mlp)
+    mlp = Dense(units=128, activation='elu')(mlp)
 
     embeddings = Dense(units=embedding_dim, activation=None, name='embedding')(mlp)
     embeddings = NormaliseLayer()(embeddings)

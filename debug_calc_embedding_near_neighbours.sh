@@ -53,7 +53,7 @@ join /tmp/source_target_[ab].nns > runs/$1/source_target_joined.ssv
 exit
 
 # stitch images
-./stitch.py < source_target_joined.ssv > stitch.out
+./stitch.py < runs/$1/source_target_joined.ssv
 
 # make a gif
 convert stitch*png runs/$1/near_neighbour_egs.gif
