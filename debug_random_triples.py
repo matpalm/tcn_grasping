@@ -16,9 +16,9 @@ parser.add_argument('--negative-selection-mode', type=str, default='random_frame
 opts = parser.parse_args()
 
 sess = tf.Session()
-triplets = triplet_selection.TripletSelection(img_dir,
-                                              negative_frame_range,
-                                              negative_selection_mode)
+triplets = triplet_selection.TripletSelection(opts.img_dir,
+                                              opts.negative_frame_range,
+                                              opts.negative_selection_mode)
 apn = a_p_n_iterator(batch_size=4, triplet_selector=triplets)
 apn = apn.make_one_shot_iterator().get_next()
 examples = sess.run(apn)
