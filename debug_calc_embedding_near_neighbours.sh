@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
 set -ex
 
-EMBEDDING_DIM=128
+EMBEDDING_DIM=32
 
 #find imgs/03_heldout/ -type f | sort | gzip > imgs_03.manifest.gz
+#awk 'NR%5==0'
 zcat imgs_03.manifest.gz | grep r000.c000 | awk 'NR%3==0' > source.manifest &
-zcat imgs_03.manifest.gz | grep c001 | awk 'NR%5==0' > target_a.manifest &
-zcat imgs_03.manifest.gz | grep c002 | awk 'NR%5==0' > target_b.manifest &
+zcat imgs_03.manifest.gz | grep c001 > target_a.manifest &
+zcat imgs_03.manifest.gz | grep c002 > target_b.manifest &
 wait
 wc -l *manifest
 

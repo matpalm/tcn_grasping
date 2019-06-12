@@ -15,6 +15,7 @@ opts = parser.parse_args()
 imgs = []
 for root, dirs, files in os.walk(opts.img_dir):
     imgs += ["%s/%s" % (root, f) for f in files]
+print(imgs)
 N = 5
 BW = 5  # pixel border width
 collage = Image.new('RGB', ((W+BW)*N, (H+BW)*N), (128,128,128))
@@ -23,6 +24,3 @@ for r in range(N):
         img = Image.open(random.choice(imgs))
         collage.paste(img, ((W+BW)*r, (H+BW)*c))
 collage.show()
-
-    
-    
