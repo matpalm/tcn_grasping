@@ -5,6 +5,11 @@ see [the blog post](http://matpalm.com/blog/pybullet_tcn_grasping) for more deta
 
 <img src="near_neighbour_egs.gif"/>
 
+## deps
+
+* pybullet
+* some urdfs for objects to grasp. a copy of the `objs` directory from https://github.com/matpalm/procedural_objects/ will get you started
+
 ## generate images
 
 ### synthetic r/g/b squares
@@ -16,8 +21,8 @@ see [the blog post](http://matpalm.com/blog/pybullet_tcn_grasping) for more deta
 ### small set
 
 ```
-./run_random_grasps.py --run 1 --num-cameras 4 --num-grasps 5 &
-./run_random_grasps.py --run 2 --num-cameras 4 --num-grasps 5 &
+./run_random_grasps.py --run 1 --num-cameras 4 --max-frames-to-render 10 &
+./run_random_grasps.py --run 2 --num-cameras 4 --max-frames-to-render 10 &
 wait
 ```
 
@@ -95,8 +100,3 @@ debug near neighbours
 ```
 ./debug_embedding_near_neighbours.py
 ```
-
-
-TODOs:
-
-- near neighbour debug that checks all images of run from camera_1 and finds NN in images all of camera_2
