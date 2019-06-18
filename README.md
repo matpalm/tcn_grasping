@@ -26,22 +26,6 @@ see [the blog post](http://matpalm.com/blog/pybullet_tcn_grasping) for more deta
 wait
 ```
 
-### simple grasping set
-
-
-* 2 cameras
-* 0 objects
-
-```
-time seq 0 99 | parallel './run_random_grasps.py --run {} --render-freq 10 --num-grasps 5 --num-cameras 2 --num-objects 0 --img-dir'
-```
-
-### full N set
-
-```
-time seq 0 99 | parallel './run_random_grasps.py --run {} --render-freq 10 --num-grasps 5'
-```
-
 ##  debugging / review images
 
 display a 5x5 sample of random frames
